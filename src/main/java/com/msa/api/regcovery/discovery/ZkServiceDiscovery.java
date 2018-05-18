@@ -102,8 +102,13 @@ public class ZkServiceDiscovery implements ServiceDiscovery {
             String hostAndPort = zkClient.readData(addressPath);
             return hostAndPort;
         } catch (Exception e) {
-            log.error(">>>>>>>>>===service discovery exception", e);
-            zkClient.close();
+            log.warn(">>>>>>>>>==={}", e.getMessage());
+            try {
+                zkClient = new ZkClient(zkAddress, Constant.ZK_SESSION_TIMEOUT, Constant.ZK_CONNECTION_TIMEOUT);
+            } catch (Exception ex) {
+                log.error(">>>>>>>>>===service discovery exception", e);
+                zkClient.close();
+            }
         }
         return null;
     }
