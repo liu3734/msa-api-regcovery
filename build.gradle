@@ -1,10 +1,10 @@
-group 'com.github.msa'
+group 'com.github.microcmpt'
 version '1.0-SNAPSHOT'
 
+apply plugin: 'idea'
 apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'signing'
-apply plugin: 'idea'
 
 signing {
     required { gradle.taskGraph.hasTask("uploadArchives") }
@@ -90,6 +90,6 @@ tasks.withType(JavaCompile) {
 artifacts {
     archives jar
     archives sourcesJar
-    archives javadocJar
+//    archives javadocJar
 }
 
