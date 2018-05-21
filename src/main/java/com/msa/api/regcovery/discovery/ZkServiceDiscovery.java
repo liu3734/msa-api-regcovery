@@ -13,12 +13,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * The type Zk service discovery.
- *
- * @ClassName: ZkServiceDiscovery
- * @Description: 基于zookeeper的服务发现类
- * @Author: sxp
- * @Date: 15 :29 2018/4/28
- * @Version: 1.0.0
  */
 @Slf4j
 @Data
@@ -29,7 +23,6 @@ public class ZkServiceDiscovery implements ServiceDiscovery {
     private String zkAddress;
 
     /**
-     * 缓存所有的服务IP和port
      * The Address cache.
      */
     private final List<String> addressCache = Lists.newCopyOnWriteArrayList();
@@ -64,7 +57,6 @@ public class ZkServiceDiscovery implements ServiceDiscovery {
                 throw new RuntimeException(String.format(">>>>>>>>>===can not find any service node on path {}", servicePath));
             }
 
-            // 从本地缓存获取某个服务地址
             String address;
             int addressCacheSize = addressCache.size();
             if (addressCacheSize > 0) {
@@ -79,7 +71,6 @@ public class ZkServiceDiscovery implements ServiceDiscovery {
             } else {
                 List<String> addressList = zkClient.getChildren(servicePath);
                 addressCache.addAll(addressList);
-                // 监听servicePath下的子文件是否发生变化
                 zkClient.subscribeChildChanges(servicePath, (parentPath, currentChilds) -> {
                         log.info(">>>>>>>>>===servicePath[{}] is changed", parentPath);
                         addressCache.clear();

@@ -9,11 +9,6 @@ import javax.annotation.PostConstruct;
 
 /**
  * The type Service registry.
- *
- * @class:ServiceRegistry
- * @description:zookeeper服务注册
- * @author:sxp
- * @date:2018/4/15 11 :46
  */
 @Slf4j
 @Data
