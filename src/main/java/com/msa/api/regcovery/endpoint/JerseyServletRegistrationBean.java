@@ -1,5 +1,7 @@
 package com.msa.api.regcovery.endpoint;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.glassfish.jersey.servlet.ServletProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -26,4 +28,13 @@ public class JerseyServletRegistrationBean {
         return registration;
     }
 
+    /**
+     * Object mapper object mapper.
+     *
+     * @return the object mapper
+     */
+    @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper().disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+    }
 }
