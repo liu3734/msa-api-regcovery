@@ -1,17 +1,17 @@
 package com.msa.api.regcovery.registry;
 
 import com.msa.api.regcovery.Constant;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.I0Itec.zkclient.ZkClient;
+
+import javax.annotation.PostConstruct;
 
 /**
  * The type Service registry.
  */
+@Data
 @Slf4j
-@Getter
-@Setter
 public class ServiceRegistry {
     /**
      * The Zk address.
@@ -23,9 +23,10 @@ public class ServiceRegistry {
     private ZkClient zkClient;
 
     /**
-     * Instantiates a new Service registry.
+     * Init.
      */
-    public ServiceRegistry() {
+    @PostConstruct
+    public void init() {
         zkClient = new ZkClient(zkAddress,  Constant.ZK_SESSION_TIMEOUT, Constant.ZK_CONNECTION_TIMEOUT);
         log.debug(">>>>>>>>>===connect to zookeeper");
     }
