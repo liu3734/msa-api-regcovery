@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.I0Itec.zkclient.ZkClient;
 
-import javax.annotation.PostConstruct;
+import java.util.Objects;
 
 /**
  * The type Service registry.
@@ -23,10 +23,9 @@ public class ServiceRegistry {
     private ZkClient zkClient;
 
     /**
-     * Init.
+     * Init zk client.
      */
-    @PostConstruct
-    public void init() {
+    private void initZkClient() {
         zkClient = new ZkClient(zkAddress,  Constant.ZK_SESSION_TIMEOUT, Constant.ZK_CONNECTION_TIMEOUT);
         log.debug(">>>>>>>>>===connect to zookeeper");
     }
@@ -39,6 +38,9 @@ public class ServiceRegistry {
      * @param serviceAddress the service address
      */
     public void registry(String serviceName, String serviceAddress) {
+        if (Objects.isNull(zkClient)) {
+            initZkClient();
+        }
         // 创建registry节点（持久）
         String registryPath = Constant.ZK_REGISTRY;
         if (!zkClient.exists(registryPath)) {
