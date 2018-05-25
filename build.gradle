@@ -37,21 +37,21 @@ uploadArchives {
             //为Pom文件做数字签名
             beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
             repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
+                authentication(userName: System.getenv('ossrhUsername'), password: System.getenv('ossrhPassword'))
             }
             snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: sonatypeUsername, password: sonatypePassword)
+                authentication(userName: System.getenv('sonatypeUsername'), password: System.getenv('sonatypePassword'))
             }
             pom.project {
                 name project.name
                 packaging 'jar'
-                description 'Service registration and discovery center based on zookeeper.'
+                description 'Lightweight RPC communication framework based on netty and protostuff.'
                 url 'https://github.com/microcmpt/msa-api-regcovery'
 
                 scm {
-                    url 'https://github.com/microcmpt/msa-api-regcovery'
-                    connection 'git@github.com:microcmpt/msa-api-regcovery.git'
-                    developerConnection 'git@github.com:microcmpt/msa-api-regcovery.git'
+                    url 'https://github.com/microcmpt/msa-rpc4j'
+                    connection 'git@github.com:microcmpt/msa-rpc4j.git'
+                    developerConnection 'git@github.com:microcmpt/msa-rpc4j.git'
                 }
 
                 licenses {
@@ -67,6 +67,11 @@ uploadArchives {
                         id 'xiapshen'
                         name 'Shen Xia ping'
                         email '1378127237@qq.com'
+                    }
+                    developer {
+                        id 'liu3734'
+                        name 'Liu ying'
+                        email 'woshibihu@qq.com'
                     }
                 }
             }
