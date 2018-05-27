@@ -1,5 +1,5 @@
 group 'com.github.microcmpt'
-version '1.0.1-SNAPSHOT'
+version '1.0.0'
 
 apply plugin: 'idea'
 apply plugin: 'java'
@@ -25,9 +25,7 @@ dependencies {
         exclude(module: 'slf4j-log4j12')
     }
     compile group: 'com.101tec', name: 'zkclient', version: '0.10'
-    compile group: 'org.springframework', name: 'spring-context', version: '4.3.7.RELEASE'
     compile group: 'com.google.guava', name: 'guava', version: '23.0'
-    compile group:  'org.springframework.boot', name: 'spring-boot-starter-jersey', version: '1.5.10.RELEASE'
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 

@@ -5,10 +5,9 @@ import com.msa.api.regcovery.Constant;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.I0Itec.zkclient.ZkClient;
-import org.springframework.util.CollectionUtils;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -33,15 +32,6 @@ public class ZkServiceDiscovery implements ServiceDiscovery {
     private ZkClient zkClient;
 
     /**
-     * Init.
-     */
-    @PostConstruct
-    public void init() {
-        zkClient = new ZkClient(zkAddress, Constant.ZK_SESSION_TIMEOUT, Constant.ZK_CONNECTION_TIMEOUT);
-        log.debug(">>>>>>>>>===connect to zookeeper");
-    }
-
-    /**
      * 服务发现
      * Discover string.
      *
@@ -51,6 +41,10 @@ public class ZkServiceDiscovery implements ServiceDiscovery {
     @Override
     public String discover(String name) {
         try {
+            if (Objects.isNull(zkClient)) {
+                zkClient = new ZkClient(zkAddress, Constant.ZK_SESSION_TIMEOUT, Constant.ZK_CONNECTION_TIMEOUT);
+                log.debug(">>>>>>>>>===connect to zookeeper");
+            }
             String servicePath = Constant.ZK_REGISTRY + "/" + name;
             // 获取service node
             if (!zkClient.exists(servicePath)) {
@@ -76,7 +70,7 @@ public class ZkServiceDiscovery implements ServiceDiscovery {
                         addressCache.clear();
                         addressCache.addAll(currentChilds);
                 });
-                if (CollectionUtils.isEmpty(addressList)) {
+                if (Objects.isNull(addressList) || addressList.size() <= 0) {
                     throw new RuntimeException(String.format(">>>>>>>>>===can not find any address node on path {}", servicePath));
                 }
                 int nodes = addressList.size();
