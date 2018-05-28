@@ -1,6 +1,7 @@
 package com.msa.api.regcovery.discovery;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.msa.api.regcovery.Constant;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +9,7 @@ import org.I0Itec.zkclient.ZkClient;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -23,9 +25,9 @@ public class ZkServiceDiscovery implements ServiceDiscovery {
     private String zkAddress;
 
     /**
-     * The Address cache.
+     * The Address cache map.
      */
-    private final List<String> addressCache = Lists.newCopyOnWriteArrayList();
+    private final Map<String, List<String>> addressCacheMap = Maps.newConcurrentMap();
 
     /**
      * The Zk client.
@@ -53,8 +55,9 @@ public class ZkServiceDiscovery implements ServiceDiscovery {
             }
 
             String address;
-            int addressCacheSize = addressCache.size();
-            if (addressCacheSize > 0) {
+            List<String> addressCache = addressCacheMap.get(name);
+            if (!CollectionUtils.isEmpty(addressCache)) {
+                int addressCacheSize = addressCache.size();
                 if (addressCacheSize == 1) {
                     address = addressCache.get(0);
                 } else {
@@ -65,11 +68,14 @@ public class ZkServiceDiscovery implements ServiceDiscovery {
                 // 从zk服务注册中心获取某个服务地址
             } else {
                 List<String> addressList = zkClient.getChildren(servicePath);
-                addressCache.addAll(addressList);
+                List<String> addressCacheOfService = Lists.newCopyOnWriteArrayList();
+                addressCacheOfService.addAll(addressList);
+                addressCacheMap.put(name, addressCacheOfService);
                 zkClient.subscribeChildChanges(servicePath, (parentPath, currentChilds) -> {
-                        log.info(">>>>>>>>>===servicePath[{}] is changed", parentPath);
-                        addressCache.clear();
-                        addressCache.addAll(currentChilds);
+                    log.info(">>>>>>>>>===servicePath[{}] is changed", parentPath);
+                    addressCacheMap.get(name).clear();
+                    addressCacheMap.get(name).addAll(currentChilds);
+                    addressCacheMap.put(name, addressCacheMap.get(name));
                 });
                 if (CollectionUtils.isEmpty(addressList)) {
                     throw new RuntimeException(String.format(">>>>>>>>>===can not find any address node on path {}", servicePath));
