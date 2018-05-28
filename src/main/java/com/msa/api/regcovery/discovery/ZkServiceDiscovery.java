@@ -5,6 +5,7 @@ import com.msa.api.regcovery.Constant;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.I0Itec.zkclient.ZkClient;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -70,7 +71,7 @@ public class ZkServiceDiscovery implements ServiceDiscovery {
                         addressCache.clear();
                         addressCache.addAll(currentChilds);
                 });
-                if (Objects.isNull(addressList) || addressList.size() <= 0) {
+                if (CollectionUtils.isEmpty(addressList)) {
                     throw new RuntimeException(String.format(">>>>>>>>>===can not find any address node on path {}", servicePath));
                 }
                 int nodes = addressList.size();
