@@ -6,6 +6,7 @@ import com.msa.api.regcovery.Constant;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.I0Itec.zkclient.ZkClient;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
@@ -18,7 +19,7 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 @Slf4j
 @Data
-public class ZkServiceDiscovery implements ServiceDiscovery {
+public class ZkServiceDiscovery implements ServiceDiscovery, InitializingBean {
     /**
      * The Zk address.
      */
@@ -34,6 +35,8 @@ public class ZkServiceDiscovery implements ServiceDiscovery {
      */
     private ZkClient zkClient;
 
+    ThreadLocal<ZkClient> zkClientThreadLocal = new ThreadLocal();
+
     /**
      * 服务发现
      * Discover string.
@@ -43,14 +46,16 @@ public class ZkServiceDiscovery implements ServiceDiscovery {
      */
     @Override
     public String discover(String name) {
+        zkClientThreadLocal.set(zkClient);
+        ZkClient zooClient = zkClientThreadLocal.get();
+        if (Objects.isNull(zooClient)) {
+            zkClientThreadLocal.set(zkClient);
+            zooClient = zkClientThreadLocal.get();
+        }
         try {
-            if (Objects.isNull(zkClient)) {
-                zkClient = new ZkClient(zkAddress, Constant.ZK_SESSION_TIMEOUT, Constant.ZK_CONNECTION_TIMEOUT);
-                log.debug(">>>>>>>>>===connect to zookeeper");
-            }
             String servicePath = Constant.ZK_REGISTRY + "/" + name;
             // 获取service node
-            if (!zkClient.exists(servicePath)) {
+            if (!zooClient.exists(servicePath)) {
                 throw new RuntimeException(String.format(">>>>>>>>>===can not find any service node on path {}", servicePath));
             }
 
@@ -67,11 +72,11 @@ public class ZkServiceDiscovery implements ServiceDiscovery {
 
                 // 从zk服务注册中心获取某个服务地址
             } else {
-                List<String> addressList = zkClient.getChildren(servicePath);
+                List<String> addressList = zooClient.getChildren(servicePath);
                 List<String> addressCacheOfService = Lists.newCopyOnWriteArrayList();
                 addressCacheOfService.addAll(addressList);
                 addressCacheMap.put(name, addressCacheOfService);
-                zkClient.subscribeChildChanges(servicePath, (parentPath, currentChilds) -> {
+                zooClient.subscribeChildChanges(servicePath, (parentPath, currentChilds) -> {
                     log.info(">>>>>>>>>===servicePath[{}] is changed", parentPath);
                     addressCacheMap.get(name).clear();
                     addressCacheMap.get(name).addAll(currentChilds);
@@ -91,17 +96,26 @@ public class ZkServiceDiscovery implements ServiceDiscovery {
 
             // 获取ip和端口号
             String addressPath = servicePath + "/" + address;
-            String hostAndPort = zkClient.readData(addressPath);
+            String hostAndPort = zooClient.readData(addressPath);
             return hostAndPort;
-        } catch (Exception e) {
-            log.warn(">>>>>>>>>==={}", e.getMessage());
-            try {
-                zkClient = new ZkClient(zkAddress, Constant.ZK_SESSION_TIMEOUT, Constant.ZK_CONNECTION_TIMEOUT);
-            } catch (Exception ex) {
-                log.error(">>>>>>>>>===service discovery exception", e);
-                zkClient.close();
-            }
+        } finally {
+            zkClientThreadLocal.remove();
         }
-        return null;
+    }
+
+    /**
+     * Invoked by a BeanFactory after it has set all bean properties supplied
+     * (and satisfied BeanFactoryAware and ApplicationContextAware).
+     * <p>This method allows the bean instance to perform initialization only
+     * possible when all bean properties have been set and to throw an
+     * exception in the event of misconfiguration.
+     *
+     * @throws Exception in the event of misconfiguration (such
+     *                   as failure to set an essential property) or if initialization fails.
+     */
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        zkClient = new ZkClient(zkAddress, Constant.ZK_SESSION_TIMEOUT, Constant.ZK_CONNECTION_TIMEOUT);
+        log.debug(">>>>>>>>>===connect to zookeeper");
     }
 }
