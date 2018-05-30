@@ -19,7 +19,6 @@ repositories {
 }
 
 dependencies {
-    compile 'org.codehaus.groovy:groovy-all:2.3.11'
     compile group: 'org.projectlombok', name: 'lombok', version: '1.16.20'
     compile(group: 'org.apache.zookeeper', name: 'zookeeper', version: '3.4.10') {
         exclude(module: 'slf4j-log4j12')
@@ -36,21 +35,21 @@ uploadArchives {
             //为Pom文件做数字签名
             beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
             repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: System.getenv('ossrhUsername'), password: System.getenv('ossrhPassword'))
+                authentication(userName: ossrhUsername, password: ossrhPassword)
             }
             snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: System.getenv('sonatypeUsername'), password: System.getenv('sonatypePassword'))
+                authentication(userName: sonatypeUsername, password: sonatypePassword)
             }
             pom.project {
                 name project.name
                 packaging 'jar'
-                description 'Lightweight RPC communication framework based on netty and protostuff.'
-                url 'https://github.com/microcmpt/msa-api-regcovery'
+                description 'Service registration and discovery center based on zookeeper.'
+                url 'https://microcmpt.github.io'
 
                 scm {
-                    url 'https://github.com/microcmpt/msa-rpc4j'
-                    connection 'git@github.com:microcmpt/msa-rpc4j.git'
-                    developerConnection 'git@github.com:microcmpt/msa-rpc4j.git'
+                    url 'https://github.com/microcmpt/msa-api-regcovery.git'
+                    connection 'git@github.com:microcmpt/msa-api-regcovery.git'
+                    developerConnection 'git@github.com:microcmpt/msa-api-regcovery.git'
                 }
 
                 licenses {
