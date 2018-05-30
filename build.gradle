@@ -47,7 +47,7 @@ uploadArchives {
                 url 'https://microcmpt.github.io'
 
                 scm {
-                    url 'https://github.com/microcmpt/msa-api-regcovery.git'
+                    url 'https://github.com/microcmpt/msa-api-regcovery'
                     connection 'git@github.com:microcmpt/msa-api-regcovery.git'
                     developerConnection 'git@github.com:microcmpt/msa-api-regcovery.git'
                 }
